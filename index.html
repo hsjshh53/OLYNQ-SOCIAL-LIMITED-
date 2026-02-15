@@ -1,0 +1,1098 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>OLYNQ SOCIAL</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: {
+                        glass: {
+                            100: 'rgba(255, 255, 255, 0.05)',
+                            200: 'rgba(255, 255, 255, 0.1)',
+                            300: 'rgba(255, 255, 255, 0.15)',
+                            400: 'rgba(255, 255, 255, 0.2)',
+                        },
+                        accent: '#6366f1'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background: #0f172a;
+            background-image: radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), radial-gradient(at 50% 0%, hsla(225,39%,30%,1) 0, transparent 50%), radial-gradient(at 100% 0%, hsla(339,49%,30%,1) 0, transparent 50%);
+            background-attachment: fixed;
+        }
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.4);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+        }
+        .glass-input {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+        .glass-input:focus {
+            outline: none;
+            border-color: rgba(99, 102, 241, 0.5);
+            background: rgba(0, 0, 0, 0.3);
+        }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .story-ring {
+            background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); 
+            padding: 2px; 
+            border-radius: 50%;
+        }
+        .fab {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: #6366f1;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            z-index: 40;
+            transition: transform 0.2s;
+        }
+        .fab:active { transform: scale(0.95); }
+        .toggle-checkbox:checked { right: 0; border-color: #68D391; }
+        .toggle-checkbox:checked + .toggle-label { background-color: #68D391; }
+    </style>
+</head>
+<body class="text-gray-100 min-h-screen pb-20 selection:bg-indigo-500 selection:text-white">
+
+    <!-- App Container -->
+    <div id="app" class="max-w-md mx-auto min-h-screen relative shadow-2xl bg-black/20"></div>
+
+    <!-- Floating Action Button -->
+    <button id="fab" onclick="router.navigate('create')" class="fab hidden">
+        <i class="fa-solid fa-plus"></i>
+    </button>
+
+    <!-- Navigation -->
+    <nav id="bottom-nav" class="fixed bottom-0 left-0 right-0 max-w-md mx-auto glass-panel border-t border-white/10 z-50 hidden">
+        <div class="flex justify-around items-center h-16">
+            <button onclick="router.navigate('home')" class="nav-btn p-2 text-gray-400 hover:text-white transition-colors flex flex-col items-center gap-1" data-target="home">
+                <i class="fa-solid fa-house text-xl"></i>
+                <span class="text-[10px]">Home</span>
+            </button>
+            <button onclick="router.navigate('communities')" class="nav-btn p-2 text-gray-400 hover:text-white transition-colors flex flex-col items-center gap-1" data-target="communities">
+                <i class="fa-solid fa-users text-xl"></i>
+                <span class="text-[10px]">Groups</span>
+            </button>
+            <button onclick="router.navigate('messages')" class="nav-btn p-2 text-gray-400 hover:text-white transition-colors flex flex-col items-center gap-1" data-target="messages">
+                <i class="fa-solid fa-comment-dots text-xl"></i>
+                <span class="text-[10px]">Chats</span>
+            </button>
+            <button onclick="router.navigate('profile')" class="nav-btn p-2 text-gray-400 hover:text-white transition-colors flex flex-col items-center gap-1" data-target="profile">
+                <div class="w-6 h-6 rounded-full bg-gray-600 overflow-hidden border border-white/20">
+                    <img id="nav-profile-img" src="https://ui-avatars.com/api/?name=User" class="w-full h-full object-cover">
+                </div>
+                <span class="text-[10px]">Profile</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Toast -->
+    <div id="toast" class="fixed top-4 left-1/2 transform -translate-x-1/2 glass-panel px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 opacity-0 translate-y-[-20px] z-[60] pointer-events-none flex items-center gap-2">
+        <i class="fa-solid fa-info-circle text-indigo-400"></i>
+        <span id="toast-msg">Notification</span>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut, createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile, updatePassword, deleteUser } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
+        import { getDatabase, ref, set, push, onValue, update, remove, get, child, query, orderByChild, equalTo, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCgfvZ4MmGAeF8BRwZI5TSep7nZ4QPwKqs",
+            authDomain: "glass-social-2313e.firebaseapp.com",
+            databaseURL: "https://glass-social-2313e-default-rtdb.firebaseio.com",
+            projectId: "glass-social-2313e",
+            storageBucket: "glass-social-2313e.firebasestorage.app",
+            messagingSenderId: "187838703850",
+            appId: "1:187838703850:web:5dc15db417d2c25a054f93"
+        };
+
+        let app, auth, db;
+        try {
+            app = initializeApp(firebaseConfig);
+            auth = getAuth(app);
+            db = getDatabase(app);
+        } catch (e) { console.error(e); }
+
+        const state = {
+            user: null,
+            userProfile: {},
+            users: {},
+            posts: {},
+            communities: {},
+            chats: {},
+            stories: {},
+            following: {},
+            currentView: 'login',
+            viewParams: {},
+            isAdmin: false,
+            searchResults: []
+        };
+
+        const utils = {
+            showToast: (msg) => {
+                const toast = document.getElementById('toast');
+                document.getElementById('toast-msg').textContent = msg;
+                toast.classList.remove('opacity-0', 'translate-y-[-20px]');
+                setTimeout(() => toast.classList.add('opacity-0', 'translate-y-[-20px]'), 3000);
+            },
+            timeAgo: (timestamp) => {
+                if (!timestamp) return 'Just now';
+                const seconds = Math.floor((new Date() - new Date(timestamp)) / 1000);
+                if (seconds < 60) return 'Just now';
+                const m = Math.floor(seconds / 60);
+                if (m < 60) return m + 'm';
+                const h = Math.floor(m / 60);
+                if (h < 24) return h + 'h';
+                const d = Math.floor(h / 24);
+                return d + 'd';
+            },
+            escapeHtml: (unsafe) => {
+                if (!unsafe) return '';
+                return unsafe.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+            },
+            fileToBase64: (file) => {
+                return new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.readAsDataURL(file);
+                    reader.onload = () => resolve(reader.result);
+                    reader.onerror = error => reject(error);
+                });
+            }
+        };
+
+        const router = {
+            navigate: (view, params = {}) => {
+                state.currentView = view;
+                state.viewParams = params;
+                if (view === 'search') api.searchUsers('');
+                render();
+                document.querySelectorAll('.nav-btn').forEach(btn => {
+                    if (btn.dataset.target === view) {
+                        btn.classList.add('text-indigo-400');
+                        btn.classList.remove('text-gray-400');
+                    } else {
+                        btn.classList.remove('text-indigo-400');
+                        btn.classList.add('text-gray-400');
+                    }
+                });
+                const nav = document.getElementById('bottom-nav');
+                const fab = document.getElementById('fab');
+                if (['login', 'signup', 'chat-detail', 'create', 'create-story', 'admin', 'search', 'settings'].includes(view)) {
+                    nav.classList.add('hidden');
+                    fab.classList.add('hidden');
+                } else {
+                    nav.classList.remove('hidden');
+                    fab.classList.remove('hidden');
+                }
+            }
+        };
+
+        const api = {
+            createPost: async (content, mediaFile = null, communityId = null) => {
+                if (!state.user) return;
+                let mediaUrl = null;
+                let mediaType = null;
+                if (mediaFile) {
+                    if (mediaFile.size > 5 * 1024 * 1024) { alert("File too large (Max 5MB)"); return; }
+                    mediaUrl = await utils.fileToBase64(mediaFile);
+                    mediaType = mediaFile.type.startsWith('video') ? 'video' : 'image';
+                }
+                const postData = {
+                    uid: state.user.uid,
+                    content: content,
+                    media: mediaUrl,
+                    mediaType: mediaType,
+                    likes: 0,
+                    likedBy: {},
+                    timestamp: serverTimestamp(),
+                    communityId: communityId,
+                    authorName: state.user.displayName || 'Anonymous',
+                    authorPhoto: state.user.photoURL || `https://ui-avatars.com/api/?name=${state.user.displayName}`
+                };
+                const newPostKey = push(child(ref(db), 'posts')).key;
+                const updates = {};
+                updates['/posts/' + newPostKey] = postData;
+                if (communityId) updates['/groupPosts/' + communityId + '/' + newPostKey] = postData;
+                await update(ref(db), updates);
+                utils.showToast('Posted!');
+                router.navigate(communityId ? 'community-detail' : 'home', { id: communityId });
+            },
+            toggleLike: async (postId) => {
+                const uid = state.user.uid;
+                const postRef = ref(db, `posts/${postId}`);
+                const snap = await get(postRef);
+                if (snap.exists()) {
+                    const post = snap.val();
+                    const likedBy = post.likedBy || {};
+                    let likes = post.likes || 0;
+                    
+                    if (likedBy[uid]) {
+                        delete likedBy[uid];
+                        likes = Math.max(0, likes - 1);
+                    } else {
+                        likedBy[uid] = true;
+                        likes++;
+                    }
+                    await update(postRef, { likes, likedBy });
+                }
+            },
+            addComment: async (postId, text) => {
+                if (!text.trim()) return;
+                const comment = {
+                    uid: state.user.uid,
+                    text: text,
+                    timestamp: serverTimestamp(),
+                    authorName: state.user.displayName || 'Anonymous',
+                    authorPhoto: state.user.photoURL || `https://ui-avatars.com/api/?name=${state.user.displayName}`
+                };
+                await push(ref(db, `posts/${postId}/comments`), comment);
+            },
+            createStory: async (mediaFile = null, text = '') => {
+                if (!state.user) return;
+                let mediaUrl = null;
+                let mediaType = null;
+                if (mediaFile) {
+                    if (mediaFile.size > 5 * 1024 * 1024) { alert("File too large (Max 5MB)"); return; }
+                    mediaUrl = await utils.fileToBase64(mediaFile);
+                    mediaType = mediaFile.type.startsWith('video') ? 'video' : 'image';
+                }
+                if (!mediaUrl && !text.trim()) return;
+                
+                const storyData = {
+                    uid: state.user.uid,
+                    media: mediaUrl,
+                    mediaType: mediaType,
+                    text: text,
+                    timestamp: serverTimestamp(),
+                    authorName: state.user.displayName || 'Anonymous',
+                    authorPhoto: state.user.photoURL || `https://ui-avatars.com/api/?name=${state.user.displayName}`
+                };
+                await push(ref(db, 'stories'), storyData);
+                utils.showToast('Story added!');
+                router.navigate('home');
+            },
+            deleteCommunity: async (groupId) => {
+                if (!confirm("Delete this group?")) return;
+                await remove(ref(db, `groups/${groupId}`));
+                utils.showToast('Group deleted');
+                router.navigate('communities');
+            },
+            joinCommunity: async (groupId) => {
+                await update(ref(db, `groups/${groupId}/members`), { [state.user.uid]: true });
+                const g = state.communities[groupId];
+                if (g.chatId) await update(ref(db, `chats/${g.chatId}/members`), { [state.user.uid]: true });
+                render();
+            },
+            leaveCommunity: async (groupId) => {
+                await remove(ref(db, `groups/${groupId}/members/${state.user.uid}`));
+                const g = state.communities[groupId];
+                if (g.chatId) await remove(ref(db, `chats/${g.chatId}/members/${state.user.uid}`));
+                render();
+            },
+            promoteMember: async (groupId, uid) => {
+                await update(ref(db, `groups/${groupId}/admins`), { [uid]: true });
+                render();
+            },
+            demoteMember: async (groupId, uid) => {
+                await remove(ref(db, `groups/${groupId}/admins/${uid}`));
+                render();
+            },
+            removeMember: async (groupId, uid) => {
+                await remove(ref(db, `groups/${groupId}/members/${uid}`));
+                await remove(ref(db, `groups/${groupId}/admins/${uid}`));
+                const g = state.communities[groupId];
+                if (g.chatId) await remove(ref(db, `chats/${g.chatId}/members/${uid}`));
+                render();
+            },
+            sharePost: async (postId) => {
+                const post = state.posts[postId];
+                if (!post) return;
+                const newPost = {
+                    ...post,
+                    uid: state.user.uid,
+                    authorName: state.user.displayName,
+                    authorPhoto: state.user.photoURL,
+                    timestamp: serverTimestamp(),
+                    likes: 0,
+                    likedBy: {},
+                    comments: {},
+                    sharedFrom: postId
+                };
+                delete newPost.communityId;
+                const newKey = push(child(ref(db), 'posts')).key;
+                await update(ref(db, `posts/${newKey}`), newPost);
+                utils.showToast('Shared to your feed!');
+            },
+            searchUsers: async (queryText) => {
+                const usersRef = ref(db, 'users');
+                const snapshot = await get(usersRef);
+                const results = [];
+                snapshot.forEach(childSnap => {
+                    const u = childSnap.val();
+                    if (!queryText || (u.displayName && u.displayName.toLowerCase().includes(queryText.toLowerCase()))) {
+                        if (u.uid !== state.user.uid) results.push({ uid: childSnap.key, ...u });
+                    }
+                });
+                state.searchResults = results.slice(0, 50);
+                render();
+            },
+            followUser: async (targetUid) => {
+                await update(ref(db), { [`/following/${state.user.uid}/${targetUid}`]: true, [`/followers/${targetUid}/${state.user.uid}`]: true });
+                utils.showToast('Followed!');
+                state.following[targetUid] = true;
+                render();
+            },
+            unfollowUser: async (targetUid) => {
+                await update(ref(db), { [`/following/${state.user.uid}/${targetUid}`]: null, [`/followers/${targetUid}/${state.user.uid}`]: null });
+                utils.showToast('Unfollowed');
+                delete state.following[targetUid];
+                render();
+            },
+            getOrCreateChat: async (targetUid) => {
+                const chatId = [state.user.uid, targetUid].sort().join('_');
+                const chatRef = ref(db, `chats/${chatId}`);
+                const snap = await get(chatRef);
+                if (!snap.exists()) {
+                    await set(chatRef, { members: { [state.user.uid]: true, [targetUid]: true }, lastTimestamp: serverTimestamp(), type: 'private' });
+                }
+                router.navigate('chat-detail', { id: chatId });
+            },
+            sendMessage: async (chatId, text, media = null, mediaType = null) => {
+                if (!text.trim() && !media) return;
+                const msg = { senderId: state.user.uid, text, timestamp: serverTimestamp() };
+                if (media) { msg.media = media; msg.mediaType = mediaType; }
+                await push(ref(db, `messages/${chatId}`), msg);
+                await update(ref(db, `chats/${chatId}`), { lastMessage: media ? (mediaType === 'video' ? 'Sent a video' : 'Sent a photo') : text, lastTimestamp: serverTimestamp() });
+            },
+            updateProfile: async (data) => {
+                await update(ref(db, `users/${state.user.uid}`), data);
+                if (data.displayName || data.photoURL) {
+                    await updateProfile(auth.currentUser, { displayName: data.displayName, photoURL: data.photoURL });
+                }
+                utils.showToast('Profile Saved');
+            },
+            deleteAccount: async () => {
+                if (!confirm("Are you sure? This will delete your account and data.")) return;
+                const uid = state.user.uid;
+                await remove(ref(db, `users/${uid}`));
+                const postsSnap = await get(query(ref(db, 'posts'), orderByChild('uid'), equalTo(uid)));
+                postsSnap.forEach(child => remove(child.ref));
+                await deleteUser(auth.currentUser);
+                window.location.reload();
+            }
+        };
+
+        const views = {
+            login: () => `
+                <div class="flex flex-col items-center justify-center min-h-screen p-6 relative overflow-hidden">
+                    <div class="glass-panel p-8 rounded-3xl w-full max-w-sm z-10 border border-white/10">
+                        <div class="text-center mb-8">
+                            <div class="w-16 h-16 bg-indigo-600 rounded-2xl mx-auto mb-4 flex items-center justify-center shadow-lg shadow-indigo-500/30"><i class="fa-solid fa-bolt text-3xl text-white"></i></div>
+                            <h1 class="text-3xl font-bold text-white">OLYNQ SOCIAL</h1>
+                        </div>
+                        <form onsubmit="handlers.login(event)" class="space-y-4">
+                            <input type="email" id="email" placeholder="Email" class="w-full px-4 py-3 rounded-xl glass-input" required>
+                            <input type="password" id="password" placeholder="Password" class="w-full px-4 py-3 rounded-xl glass-input" required>
+                            <button type="submit" class="w-full py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold shadow-lg">Sign In</button>
+                        </form>
+                        <button onclick="handlers.googleLogin()" class="mt-4 w-full py-3 rounded-xl bg-white text-gray-900 font-semibold flex items-center justify-center gap-2"><i class="fa-brands fa-google text-red-500"></i> Google</button>
+                        <p class="mt-6 text-center text-gray-400 text-sm">No account? <a href="#" onclick="router.navigate('signup')" class="text-indigo-400">Sign up</a></p>
+                    </div>
+                </div>
+            `,
+            signup: () => `
+                <div class="flex flex-col items-center justify-center min-h-screen p-6">
+                    <div class="glass-panel p-8 rounded-3xl w-full max-w-sm border border-white/10">
+                        <h2 class="text-2xl font-bold text-white mb-6 text-center">Join OLYNQ SOCIAL</h2>
+                        <form onsubmit="handlers.signup(event)" class="space-y-4">
+                            <input type="text" id="signup-name" placeholder="Full Name" class="w-full px-4 py-3 rounded-xl glass-input" required>
+                            <input type="email" id="signup-email" placeholder="Email" class="w-full px-4 py-3 rounded-xl glass-input" required>
+                            <input type="password" id="signup-password" placeholder="Password" class="w-full px-4 py-3 rounded-xl glass-input" required>
+                            <button type="submit" class="w-full py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold shadow-lg">Create Account</button>
+                        </form>
+                        <p class="mt-6 text-center text-gray-400 text-sm">Have an account? <a href="#" onclick="router.navigate('login')" class="text-indigo-400">Sign in</a></p>
+                    </div>
+                </div>
+            `,
+            home: () => {
+                const now = Date.now();
+                const activeStories = Object.entries(state.stories || {})
+                    .filter(([_, s]) => (now - s.timestamp) < 24 * 60 * 60 * 1000)
+                    .sort((a, b) => b[1].timestamp - a[1].timestamp);
+                const postsHtml = Object.entries(state.posts || {})
+                    .sort((a, b) => b[1].timestamp - a[1].timestamp)
+                    .map(([id, post]) => components.postCard(id, post))
+                    .join('');
+                return `
+                    <div class="pb-20 pt-4 px-4">
+                        <div class="flex justify-between items-center mb-6">
+                            <h1 class="text-2xl font-bold text-white">OLYNQ SOCIAL</h1>
+                            <div class="flex gap-3">
+                                <button onclick="router.navigate('search')" class="w-10 h-10 rounded-full glass-panel flex items-center justify-center text-gray-300"><i class="fa-solid fa-magnifying-glass"></i></button>
+                                <button class="w-10 h-10 rounded-full glass-panel flex items-center justify-center text-gray-300"><i class="fa-regular fa-bell"></i></button>
+                            </div>
+                        </div>
+                        <div class="flex gap-4 overflow-x-auto hide-scrollbar mb-8 pb-2">
+                            <div class="flex-shrink-0 flex flex-col items-center gap-1 cursor-pointer" onclick="router.navigate('create-story')">
+                                <div class="w-16 h-16 rounded-full border-2 border-dashed border-gray-500 flex items-center justify-center bg-white/5"><i class="fa-solid fa-plus text-gray-400"></i></div>
+                                <span class="text-xs text-gray-400">Add</span>
+                            </div>
+                            ${activeStories.map(([id, s]) => `
+                                <div class="flex-shrink-0 flex flex-col items-center gap-1 cursor-pointer" onclick="router.navigate('story-viewer', {id: '${id}'})">
+                                    <div class="w-16 h-16 rounded-full story-ring p-[2px]"><img src="${s.authorPhoto}" class="w-full h-full rounded-full border-2 border-slate-900 object-cover"></div>
+                                    <span class="text-xs text-gray-300">${s.authorName.split(' ')[0]}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                        <div class="space-y-6">${postsHtml || '<div class="text-center text-gray-500 py-10">No posts yet.</div>'}</div>
+                    </div>
+                `;
+            },
+            search: () => `
+                <div class="pb-20 pt-4 px-4 min-h-screen">
+                    <div class="flex items-center gap-4 mb-6">
+                        <button onclick="router.navigate('home')" class="text-gray-400"><i class="fa-solid fa-arrow-left"></i></button>
+                        <input type="text" id="search-input" placeholder="Search users..." class="flex-1 bg-white/10 border border-white/10 rounded-full px-4 py-2 text-white focus:outline-none focus:border-indigo-500" oninput="handlers.search(event)" value="${state.viewParams.query || ''}">
+                    </div>
+                    <div class="space-y-4">
+                        ${state.searchResults.map(u => `
+                            <div class="glass-card p-4 flex items-center justify-between cursor-pointer hover:bg-white/5" onclick="router.navigate('profile', {id: '${u.uid}'})">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-12 h-12 rounded-full bg-gray-700 overflow-hidden"><img src="${u.photoURL || 'https://ui-avatars.com/api/?name='+u.displayName}" class="w-full h-full object-cover"></div>
+                                    <div>
+                                        <h3 class="font-bold text-white">${utils.escapeHtml(u.displayName)}</h3>
+                                        <p class="text-xs text-gray-400">@${u.email?.split('@')[0]}</p>
+                                    </div>
+                                </div>
+                                <div class="flex gap-2" onclick="event.stopPropagation()">
+                                    <button onclick="api.getOrCreateChat('${u.uid}')" class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white hover:bg-indigo-600"><i class="fa-regular fa-comment"></i></button>
+                                    ${state.following[u.uid] 
+                                        ? `<button onclick="api.unfollowUser('${u.uid}')" class="px-3 py-1 rounded-full bg-white/10 text-xs text-white">Following</button>`
+                                        : `<button onclick="api.followUser('${u.uid}')" class="px-3 py-1 rounded-full bg-indigo-600 text-xs text-white">Follow</button>`
+                                    }
+                                </div>
+                            </div>
+                        `).join('')}
+                        ${state.searchResults.length === 0 ? '<p class="text-center text-gray-500 mt-10">No users found.</p>' : ''}
+                    </div>
+                </div>
+            `,
+            communities: () => {
+                const groups = Object.entries(state.communities || {}).map(([id, g]) => `
+                    <div class="glass-card p-4 flex items-center gap-4 hover:bg-white/5 transition-all cursor-pointer" onclick="router.navigate('community-detail', {id: '${id}'})">
+                        <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-xl font-bold text-white shadow-lg">${g.name[0].toUpperCase()}</div>
+                        <div class="flex-1">
+                            <h3 class="font-bold text-white">${utils.escapeHtml(g.name)}</h3>
+                            <p class="text-sm text-gray-400 truncate">${utils.escapeHtml(g.description)}</p>
+                            <p class="text-xs text-gray-500 mt-1">${Object.keys(g.members || {}).length} members</p>
+                        </div>
+                        ${g.members && g.members[state.user.uid] ? '<span class="text-xs bg-green-500/20 text-green-400 px-2 py-1 rounded-md">Joined</span>' : `<button onclick="event.stopPropagation(); api.joinCommunity('${id}')" class="text-xs bg-indigo-600 hover:bg-indigo-500 px-3 py-1 rounded-md text-white">Join</button>`}
+                    </div>
+                `).join('');
+                return `
+                    <div class="pb-20 pt-4 px-4">
+                        <div class="flex justify-between items-center mb-6">
+                            <h1 class="text-2xl font-bold text-white">Communities</h1>
+                            <button onclick="handlers.createCommunity()" class="text-indigo-400 text-sm font-medium">+ Create</button>
+                        </div>
+                        <div class="space-y-3">${groups || '<p class="text-gray-500 text-center">No communities found.</p>'}</div>
+                    </div>
+                `;
+            },
+            messages: () => {
+                const myChats = Object.entries(state.chats || {})
+                    .filter(([id, chat]) => chat.members && chat.members[state.user.uid])
+                    .sort((a, b) => (b[1].lastTimestamp || 0) - (a[1].lastTimestamp || 0));
+                return `
+                    <div class="pb-20 pt-4 px-4">
+                        <div class="flex justify-between items-center mb-6">
+                            <h1 class="text-2xl font-bold text-white">Messages</h1>
+                            <button onclick="router.navigate('search')" class="w-10 h-10 rounded-full glass-panel flex items-center justify-center text-gray-300 hover:text-white"><i class="fa-solid fa-magnifying-glass"></i></button>
+                        </div>
+                        <div class="space-y-2">
+                            ${myChats.map(([id, chat]) => {
+                                const otherUid = Object.keys(chat.members).find(uid => uid !== state.user.uid);
+                                let otherUser = (state.users && state.users[otherUid]);
+                                const name = (otherUser && otherUser.displayName) || 'User';
+                                const photo = (otherUser && otherUser.photoURL) || `https://ui-avatars.com/api/?name=${name}`;
+                                return `
+                                    <div class="glass-card p-4 flex items-center gap-4 cursor-pointer hover:bg-white/5" onclick="router.navigate('chat-detail', {id: '${id}'})">
+                                        <div class="w-12 h-12 rounded-full bg-gray-700 overflow-hidden"><img src="${photo}" class="w-full h-full object-cover" loading="lazy"></div>
+                                        <div class="flex-1">
+                                            <div class="flex justify-between">
+                                                <h3 class="font-semibold text-white">${utils.escapeHtml(name)}</h3>
+                                                <span class="text-xs text-gray-500">${utils.timeAgo(chat.lastTimestamp)}</span>
+                                            </div>
+                                            <p class="text-sm text-gray-400 truncate">${utils.escapeHtml(chat.lastMessage || 'Start chatting')}</p>
+                                        </div>
+                                    </div>
+                                `;
+                            }).join('')}
+                            ${myChats.length === 0 ? '<div class="text-center mt-10"><div class="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl">💬</div><p class="text-gray-400">No chats yet</p><button onclick="router.navigate(\'search\')" class="mt-4 text-indigo-400 hover:text-indigo-300">Start a conversation</button></div>' : ''}
+                        </div>
+                    </div>
+                `;
+            },
+            'chat-detail': () => {
+                const chatId = state.viewParams.id;
+                const otherUid = chatId.replace(state.user.uid, '').replace('_', '');
+                let otherUser = (state.users && state.users[otherUid]);
+                const name = (otherUser && otherUser.displayName) || 'User';
+                const photo = (otherUser && otherUser.photoURL) || `https://ui-avatars.com/api/?name=${name}`;
+                
+                if (!state.users[otherUid]) {
+                    get(ref(db, `users/${otherUid}`)).then(snap => { if (snap.exists()) { state.users[otherUid] = snap.val(); render(); } });
+                }
+                return `
+                    <div class="flex flex-col h-screen bg-slate-900">
+                        <div class="glass-panel p-4 flex items-center gap-4 z-10">
+                            <button onclick="router.navigate('messages')" class="text-white"><i class="fa-solid fa-arrow-left"></i></button>
+                            <div class="w-10 h-10 rounded-full bg-gray-700 overflow-hidden cursor-pointer" onclick="router.navigate('profile', {id: '${otherUid}'})"><img src="${photo}" class="w-full h-full object-cover"></div>
+                            <div class="cursor-pointer" onclick="router.navigate('profile', {id: '${otherUid}'})">
+                                <h3 class="font-bold text-white text-sm">${utils.escapeHtml(name)}</h3>
+                                <span class="text-xs text-green-400 flex items-center gap-1"><span class="w-2 h-2 bg-green-500 rounded-full"></span> Online</span>
+                            </div>
+                        </div>
+                        <div class="flex-1 overflow-y-auto p-4 space-y-4" id="chat-messages"></div>
+                        <div class="p-4 glass-panel">
+                            <div id="msg-preview" class="mb-2"></div>
+                            <form onsubmit="handlers.sendMessage(event, '${chatId}')" class="flex gap-2 items-center">
+                                <label class="text-gray-400 hover:text-white cursor-pointer p-2">
+                                    <i class="fa-solid fa-image"></i>
+                                    <input type="file" id="msg-file" class="hidden" accept="image/*,video/*" onchange="handlers.previewMessageMedia(this)">
+                                </label>
+                                <input type="text" id="msg-input" placeholder="Message..." class="flex-1 glass-input rounded-full px-4 py-3 focus:ring-2 focus:ring-indigo-500 transition-all" autocomplete="off">
+                                <button type="submit" class="w-10 h-10 rounded-full bg-indigo-600 text-white flex items-center justify-center hover:bg-indigo-500 transition-all shadow-lg shadow-indigo-500/30"><i class="fa-solid fa-paper-plane"></i></button>
+                            </form>
+                        </div>
+                    </div>
+                `;
+            },
+            profile: () => {
+                const targetUid = state.viewParams.id || state.user.uid;
+                const isMe = targetUid === state.user.uid;
+                const u = isMe ? (state.userProfile || state.user) : (state.users && state.users[targetUid]);
+                
+                if (!u) return '<div class="p-20 text-center text-gray-400">User not found</div>';
+                
+                const isFollowing = state.following && state.following[targetUid];
+
+                return `
+                    <div class="pb-20">
+                        <div class="h-48 w-full bg-gradient-to-r from-indigo-900 to-purple-900 relative">
+                            ${u.coverPhoto ? `<img src="${u.coverPhoto}" class="w-full h-full object-cover opacity-50">` : ''}
+                            ${isMe ? `<button class="absolute top-4 right-4 glass-panel p-2 rounded-full text-white" onclick="router.navigate('settings')"><i class="fa-solid fa-gear"></i></button>` : ''}
+                            <button class="absolute top-4 left-4 glass-panel p-2 rounded-full text-white" onclick="router.navigate('home')"><i class="fa-solid fa-arrow-left"></i></button>
+                        </div>
+                        <div class="px-4 -mt-16 relative z-10">
+                            <div class="flex justify-between items-end">
+                                <div class="w-32 h-32 rounded-full border-4 border-slate-900 overflow-hidden bg-gray-800"><img src="${u.photoURL || 'https://ui-avatars.com/api/?name=' + u.displayName}" class="w-full h-full object-cover"></div>
+                                ${isMe 
+                                    ? `<button onclick="router.navigate('settings')" class="mb-4 px-6 py-2 rounded-full glass-panel border border-white/20 text-sm font-medium text-white">Edit Profile</button>`
+                                    : `<div class="flex gap-2 mb-4">
+                                        <button onclick="api.getOrCreateChat('${targetUid}')" class="px-4 py-2 rounded-full glass-panel border border-white/20 text-white hover:bg-white/10"><i class="fa-regular fa-comment"></i></button>
+                                        ${isFollowing 
+                                            ? `<button onclick="api.unfollowUser('${targetUid}')" class="px-6 py-2 rounded-full bg-white/10 text-white border border-white/20">Following</button>`
+                                            : `<button onclick="api.followUser('${targetUid}')" class="px-6 py-2 rounded-full bg-indigo-600 text-white shadow-lg shadow-indigo-500/30">Follow</button>`
+                                        }
+                                       </div>`
+                                }
+                            </div>
+                            <div class="mt-4">
+                                <h1 class="text-2xl font-bold text-white flex items-center gap-2">${utils.escapeHtml(u.displayName)} ${u.isAdmin ? '<i class="fa-solid fa-shield-halved text-yellow-400 text-sm"></i>' : '<i class="fa-solid fa-circle-check text-blue-400 text-sm"></i>'}</h1>
+                                <p class="text-gray-400 text-sm">@${u.email ? u.email.split('@')[0] : 'user'}</p>
+                                <p class="mt-3 text-gray-300 text-sm">${utils.escapeHtml(u.bio || 'Digital nomad & software engineer.')}</p>
+                                ${u.workplace ? `<p class="text-gray-400 text-xs mt-1"><i class="fa-solid fa-briefcase mr-1"></i> ${utils.escapeHtml(u.workplace)}</p>` : ''}
+                                <div class="flex gap-4 mt-4 text-sm text-gray-400">
+                                    <span><strong class="text-white">${Object.keys(state.following || {}).length}</strong> Following</span>
+                                    <span><strong class="text-white">--</strong> Followers</span>
+                                </div>
+                            </div>
+                            ${isMe && state.isAdmin ? `<button onclick="router.navigate('admin')" class="mt-6 w-full py-3 bg-red-500/20 text-red-400 rounded-xl border border-red-500/50">Admin Panel</button>` : ''}
+                        </div>
+                    </div>
+                `;
+            },
+            settings: () => {
+                const u = state.userProfile || state.user;
+                return `
+                    <div class="pb-20 pt-4 px-4 min-h-screen">
+                        <div class="flex items-center gap-4 mb-6">
+                            <button onclick="router.navigate('profile')" class="text-gray-400"><i class="fa-solid fa-arrow-left"></i></button>
+                            <h1 class="text-2xl font-bold text-white">Settings</h1>
+                        </div>
+                        <div class="glass-card p-6 mb-6">
+                            <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2"><i class="fa-solid fa-user-pen text-indigo-400"></i> Profile</h3>
+                            <form onsubmit="handlers.saveProfile(event)" class="space-y-4">
+                                <div><label class="text-xs text-gray-400 mb-1 block">Display Name</label><input type="text" id="edit-name" value="${utils.escapeHtml(u.displayName)}" class="w-full px-4 py-2 rounded-xl glass-input"></div>
+                                <div><label class="text-xs text-gray-400 mb-1 block">Bio</label><textarea id="edit-bio" class="w-full px-4 py-2 rounded-xl glass-input h-20">${utils.escapeHtml(u.bio || '')}</textarea></div>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div><label class="text-xs text-gray-400 mb-1 block">Workplace</label><input type="text" id="edit-work" value="${utils.escapeHtml(u.workplace || '')}" class="w-full px-4 py-2 rounded-xl glass-input"></div>
+                                    <div><label class="text-xs text-gray-400 mb-1 block">Location</label><input type="text" id="edit-location" value="${utils.escapeHtml(u.location || '')}" class="w-full px-4 py-2 rounded-xl glass-input"></div>
+                                </div>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div><label class="text-xs text-gray-400 mb-1 block">School</label><input type="text" id="edit-school" value="${utils.escapeHtml(u.school || '')}" class="w-full px-4 py-2 rounded-xl glass-input"></div>
+                                    <div><label class="text-xs text-gray-400 mb-1 block">Job</label><input type="text" id="edit-job" value="${utils.escapeHtml(u.job || '')}" class="w-full px-4 py-2 rounded-xl glass-input"></div>
+                                </div>
+                                <div class="pt-2 flex gap-4">
+                                    <label class="flex-1 flex items-center justify-center gap-2 text-indigo-400 cursor-pointer hover:bg-white/5 p-2 rounded-lg border border-white/10"><i class="fa-solid fa-camera"></i> <span>Photo</span><input type="file" id="edit-photo" class="hidden" accept="image/*"></label>
+                                    <label class="flex-1 flex items-center justify-center gap-2 text-pink-400 cursor-pointer hover:bg-white/5 p-2 rounded-lg border border-white/10"><i class="fa-regular fa-image"></i> <span>Cover</span><input type="file" id="edit-cover" class="hidden" accept="image/*"></label>
+                                </div>
+                                <button type="submit" class="w-full py-2 bg-indigo-600 rounded-xl text-white font-medium hover:bg-indigo-500">Save Changes</button>
+                            </form>
+                        </div>
+                        <div class="glass-card p-6 mb-6">
+                            <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2"><i class="fa-solid fa-shield-halved text-green-400"></i> Account</h3>
+                            <div class="space-y-4">
+                                <div><label class="text-xs text-gray-400 block">Email</label><div class="text-white">${u.email}</div></div>
+                                <button onclick="handlers.changePassword()" class="w-full py-2 glass-panel rounded-xl text-gray-300 hover:text-white">Change Password</button>
+                                <button onclick="api.deleteAccount()" class="w-full py-2 bg-red-500/20 text-red-400 rounded-xl border border-red-500/50 hover:bg-red-500/30">Delete Account</button>
+                            </div>
+                        </div>
+                        <div class="glass-card p-6 mb-6">
+                            <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2"><i class="fa-solid fa-lock text-yellow-400"></i> Privacy & Notifications</h3>
+                            <div class="space-y-4">
+                                <div class="flex items-center justify-between"><span class="text-gray-300">Private Profile</span><label class="relative inline-flex items-center cursor-pointer"><input type="checkbox" class="sr-only peer" ${u.settings?.private ? 'checked' : ''} onchange="handlers.toggleSetting('private')"><div class="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div></label></div>
+                                <div class="flex items-center justify-between"><span class="text-gray-300">Message Notifications</span><label class="relative inline-flex items-center cursor-pointer"><input type="checkbox" class="sr-only peer" ${u.settings?.notify_messages !== false ? 'checked' : ''} onchange="handlers.toggleSetting('notify_messages')"><div class="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div></label></div>
+                                <div class="flex items-center justify-between"><span class="text-gray-300">Like Notifications</span><label class="relative inline-flex items-center cursor-pointer"><input type="checkbox" class="sr-only peer" ${u.settings?.notify_likes !== false ? 'checked' : ''} onchange="handlers.toggleSetting('notify_likes')"><div class="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div></label></div>
+                            </div>
+                        </div>
+                        <div class="glass-card p-6 mb-6">
+                            <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2"><i class="fa-solid fa-database text-blue-400"></i> Content</h3>
+                            <button onclick="utils.showToast('No saved posts')" class="w-full py-2 glass-panel rounded-xl text-gray-300 hover:text-white mb-2">View Saved Posts</button>
+                            <button onclick="utils.showToast('Chat history cleared locally')" class="w-full py-2 glass-panel rounded-xl text-gray-300 hover:text-white">Clear Chat History</button>
+                        </div>
+                        <button onclick="handlers.logout()" class="w-full py-3 bg-gray-800 rounded-xl text-white font-bold hover:bg-gray-700 mb-8">Log Out</button>
+                        <div class="text-center text-xs text-gray-500">OLYNQ SOCIAL v1.0.0<br>Session ID: ${state.user.uid.substring(0,8)}...</div>
+                    </div>
+                `;
+            },
+            create: () => `
+                <div class="min-h-screen bg-slate-900 p-4">
+                    <div class="flex justify-between items-center mb-6">
+                        <button onclick="router.navigate('home')" class="text-gray-400">Cancel</button>
+                        <button onclick="handlers.submitPost()" class="bg-indigo-600 px-6 py-2 rounded-full text-white font-medium">Post</button>
+                    </div>
+                    <textarea id="post-content" placeholder="What's on your mind?" class="w-full bg-transparent text-white text-lg placeholder-gray-500 focus:outline-none resize-none h-40"></textarea>
+                    <div class="mt-4">
+                        <label class="flex items-center gap-3 text-indigo-400 hover:bg-white/5 w-full p-3 rounded-xl transition-all cursor-pointer">
+                            <i class="fa-regular fa-image text-xl"></i>
+                            <span>Add Photo / Video</span>
+                            <input type="file" id="post-media" class="hidden" accept="image/*,video/*" onchange="document.getElementById('file-name').textContent = this.files[0]?.name || ''">
+                        </label>
+                        <span id="file-name" class="text-sm text-gray-500 ml-4"></span>
+                    </div>
+                </div>
+            `,
+            'create-story': () => `
+                <div class="min-h-screen bg-slate-900 p-4">
+                    <div class="flex justify-between items-center mb-6">
+                        <button onclick="router.navigate('home')" class="text-gray-400">Cancel</button>
+                        <button onclick="handlers.submitStory()" class="bg-indigo-600 px-6 py-2 rounded-full text-white font-medium">Share</button>
+                    </div>
+                    <textarea id="story-text" placeholder="Add text to your story..." class="w-full bg-transparent text-white text-lg placeholder-gray-500 focus:outline-none resize-none h-40"></textarea>
+                    <div class="mt-4">
+                        <label class="flex items-center gap-3 text-indigo-400 hover:bg-white/5 w-full p-3 rounded-xl transition-all cursor-pointer">
+                            <i class="fa-regular fa-image text-xl"></i>
+                            <span>Add Photo / Video</span>
+                            <input type="file" id="story-media" class="hidden" accept="image/*,video/*" onchange="document.getElementById('story-file-name').textContent = this.files[0]?.name || ''">
+                        </label>
+                        <span id="story-file-name" class="text-sm text-gray-500 ml-4"></span>
+                    </div>
+                </div>
+            `,
+            'story-viewer': () => {
+                const storyId = state.viewParams.id;
+                const story = state.stories[storyId];
+                if (!story) return '<div class="p-10 text-center text-white">Loading...</div>';
+                
+                return `
+                    <div class="fixed inset-0 bg-black z-50 flex flex-col">
+                        <div class="p-4 flex justify-between items-center z-10">
+                            <div class="flex items-center gap-2">
+                                <div class="w-8 h-8 rounded-full overflow-hidden"><img src="${story.authorPhoto}" class="w-full h-full object-cover"></div>
+                                <span class="text-white font-bold text-sm">${utils.escapeHtml(story.authorName)}</span>
+                                <span class="text-xs text-gray-400">${utils.timeAgo(story.timestamp)}</span>
+                            </div>
+                            <button onclick="router.navigate('home')" class="text-white text-2xl"><i class="fa-solid fa-times"></i></button>
+                        </div>
+                        <div class="flex-1 flex items-center justify-center relative">
+                            ${story.media ? (story.mediaType === 'video' ? `<video src="${story.media}" controls autoplay class="max-w-full max-h-full"></video>` : `<img src="${story.media}" class="max-w-full max-h-full object-contain">`) : ''}
+                            ${story.text ? `<div class="absolute bottom-20 left-0 right-0 p-6 text-center"><p class="text-white text-xl font-medium drop-shadow-lg">${utils.escapeHtml(story.text)}</p></div>` : ''}
+                        </div>
+                    </div>
+                `;
+            },
+            admin: () => `
+                <div class="min-h-screen bg-slate-900 p-4">
+                    <div class="flex items-center gap-4 mb-6">
+                        <button onclick="router.navigate('profile')" class="text-gray-400"><i class="fa-solid fa-arrow-left"></i></button>
+                        <h1 class="text-2xl font-bold text-white">Admin God Mode</h1>
+                    </div>
+                    <div class="space-y-4">
+                        <div class="glass-card p-4"><h3 class="font-bold text-white mb-2">Reports</h3><p class="text-gray-400 text-sm">No active reports.</p></div>
+                    </div>
+                </div>
+            `,
+            'community-detail': () => {
+                const id = state.viewParams.id;
+                const tab = state.viewParams.tab || 'feed';
+                const g = state.communities[id];
+                if (!g) return '<div class="p-10 text-center">Loading...</div>';
+                
+                const isMember = g.members && g.members[state.user.uid];
+                const isAdmin = g.admins && g.admins[state.user.uid];
+                const groupPosts = Object.entries(state.posts || {})
+                    .filter(([pid, p]) => p.communityId === id)
+                    .sort((a, b) => b[1].timestamp - a[1].timestamp);
+
+                return `
+                    <div class="pb-20">
+                        <div class="h-40 bg-indigo-900 relative">
+                            <button onclick="router.navigate('communities')" class="absolute top-4 left-4 w-10 h-10 glass-panel rounded-full flex items-center justify-center text-white"><i class="fa-solid fa-arrow-left"></i></button>
+                            ${isAdmin ? `<button onclick="api.deleteCommunity('${id}')" class="absolute top-4 right-4 px-4 py-1 bg-red-500/20 text-red-400 rounded-full text-xs border border-red-500/50">Delete</button>` : ''}
+                        </div>
+                        <div class="px-4 -mt-10 relative">
+                            <div class="flex justify-between items-end">
+                                <div class="w-20 h-20 rounded-2xl bg-indigo-500 flex items-center justify-center text-3xl font-bold text-white shadow-lg border-4 border-slate-900">${g.name[0]}</div>
+                                ${!isMember ? `<button onclick="api.joinCommunity('${id}')" class="mb-2 px-6 py-2 bg-indigo-600 rounded-full text-white font-bold">Join Group</button>` : 
+                                `<button onclick="api.leaveCommunity('${id}')" class="mb-2 px-6 py-2 bg-white/10 rounded-full text-white font-bold">Joined</button>`}
+                            </div>
+                            <div class="mt-3"><h1 class="text-2xl font-bold text-white">${utils.escapeHtml(g.name)}</h1><p class="text-gray-300 text-sm mt-2">${utils.escapeHtml(g.description)}</p></div>
+                            
+                            <div class="flex gap-4 mt-6 border-b border-white/10 pb-2">
+                                <button onclick="router.navigate('community-detail', {id: '${id}', tab: 'feed'})" class="${tab === 'feed' ? 'text-indigo-400 border-b-2 border-indigo-400' : 'text-gray-400'} pb-2 font-medium transition-all">Feed</button>
+                                <button onclick="router.navigate('community-detail', {id: '${id}', tab: 'chat'})" class="${tab === 'chat' ? 'text-indigo-400 border-b-2 border-indigo-400' : 'text-gray-400'} pb-2 font-medium transition-all">Chat</button>
+                                <button onclick="router.navigate('community-detail', {id: '${id}', tab: 'members'})" class="${tab === 'members' ? 'text-indigo-400 border-b-2 border-indigo-400' : 'text-gray-400'} pb-2 font-medium transition-all">Members</button>
+                            </div>
+
+                            <div class="mt-4">
+                                ${tab === 'feed' ? `
+                                    ${isMember ? `
+                                    <div class="glass-card p-4 mb-4 flex gap-3 items-center cursor-pointer" onclick="router.navigate('create', {communityId: '${id}'})">
+                                        <div class="w-10 h-10 rounded-full bg-gray-700 overflow-hidden"><img src="${state.user.photoURL}" class="w-full h-full object-cover"></div>
+                                        <div class="flex-1 bg-white/5 rounded-full px-4 py-2 text-gray-400 text-sm">Write something...</div>
+                                    </div>` : ''}
+                                    <div class="space-y-6">${groupPosts.map(([pid, p]) => components.postCard(pid, p)).join('') || '<div class="text-center text-gray-500 py-10">No posts yet.</div>'}</div>
+                                ` : ''}
+
+                                ${tab === 'chat' ? `
+                                    <div class="h-[300px] glass-panel rounded-2xl flex items-center justify-center">
+                                        ${isMember ? `<button onclick="router.navigate('chat-detail', {id: '${g.chatId || 'group_' + id}'})" class="px-6 py-3 bg-indigo-600 rounded-full text-white font-bold shadow-lg">Enter Group Chat</button>` : '<div class="text-gray-400">Join group to chat</div>'}
+                                    </div>
+                                ` : ''}
+                                
+                                ${tab === 'members' ? `
+                                    <div class="space-y-2">
+                                        ${Object.keys(g.members || {}).map(uid => {
+                                            const u = state.users[uid] || { displayName: 'User', photoURL: null };
+                                            const isUserAdmin = g.admins && g.admins[uid];
+                                            return `
+                                            <div class="glass-card p-3 flex items-center justify-between">
+                                                <div class="flex items-center gap-3">
+                                                    <div class="w-10 h-10 rounded-full bg-gray-700 overflow-hidden"><img src="${u.photoURL || 'https://ui-avatars.com/api/?name='+u.displayName}" class="w-full h-full object-cover"></div>
+                                                    <div>
+                                                        <h4 class="text-white font-medium">${utils.escapeHtml(u.displayName)}</h4>
+                                                        ${isUserAdmin ? '<span class="text-xs text-indigo-400">Admin</span>' : '<span class="text-xs text-gray-500">Member</span>'}
+                                                    </div>
+                                                </div>
+                                                ${isAdmin && uid !== state.user.uid ? `
+                                                    <div class="flex gap-2">
+                                                        ${!isUserAdmin ? `<button onclick="api.promoteMember('${id}', '${uid}')" class="text-xs bg-indigo-600 px-2 py-1 rounded text-white">Promote</button>` : `<button onclick="api.demoteMember('${id}', '${uid}')" class="text-xs bg-yellow-600 px-2 py-1 rounded text-white">Demote</button>`}
+                                                        <button onclick="api.removeMember('${id}', '${uid}')" class="text-xs bg-red-600 px-2 py-1 rounded text-white">Remove</button>
+                                                    </div>
+                                                ` : ''}
+                                            </div>
+                                            `;
+                                        }).join('')}
+                                    </div>
+                                ` : ''}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            },
+            'post-detail': () => {
+                const postId = state.viewParams.id;
+                const post = state.posts[postId];
+                if (!post) return '<div class="p-10 text-center text-white">Loading...</div>';
+                const comments = Object.entries(post.comments || {}).sort((a, b) => b[1].timestamp - a[1].timestamp);
+                return `
+                    <div class="pb-20 pt-4 px-4 min-h-screen">
+                        <div class="flex items-center gap-4 mb-6">
+                            <button onclick="router.navigate('home')" class="text-gray-400"><i class="fa-solid fa-arrow-left"></i></button>
+                            <h1 class="text-2xl font-bold text-white">Post</h1>
+                        </div>
+                        ${components.postCard(postId, post)}
+                        <div class="glass-card p-4 mb-20">
+                            <h3 class="text-white font-bold mb-4">Comments</h3>
+                            <div class="space-y-4 mb-6">
+                                ${comments.map(([cid, c]) => `
+                                    <div class="flex gap-3">
+                                        <div class="w-8 h-8 rounded-full bg-gray-700 overflow-hidden flex-shrink-0 cursor-pointer" onclick="router.navigate('profile', {id: '${c.uid}'})">
+                                            <img src="${c.authorPhoto}" class="w-full h-full object-cover">
+                                        </div>
+                                        <div class="flex-1">
+                                            <div class="bg-white/5 rounded-2xl rounded-tl-none px-4 py-2">
+                                                <div class="flex justify-between items-baseline">
+                                                    <span class="text-sm font-bold text-white cursor-pointer hover:underline" onclick="router.navigate('profile', {id: '${c.uid}'})">${utils.escapeHtml(c.authorName)}</span>
+                                                    <span class="text-xs text-gray-500">${utils.timeAgo(c.timestamp)}</span>
+                                                </div>
+                                                <p class="text-sm text-gray-300 mt-1">${utils.escapeHtml(c.text)}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                                ${comments.length === 0 ? '<p class="text-gray-500 text-center text-sm">No comments yet.</p>' : ''}
+                            </div>
+                        </div>
+                        <div class="fixed bottom-0 left-0 right-0 p-4 glass-panel border-t border-white/10 z-50">
+                            <form onsubmit="handlers.submitComment(event, '${postId}')" class="max-w-md mx-auto flex gap-2">
+                                <input type="text" id="comment-input" placeholder="Write a comment..." class="flex-1 glass-input rounded-full px-4 py-2 focus:ring-2 focus:ring-indigo-500" autocomplete="off">
+                                <button type="submit" class="w-10 h-10 rounded-full bg-indigo-600 text-white flex items-center justify-center hover:bg-indigo-500"><i class="fa-solid fa-paper-plane"></i></button>
+                            </form>
+                        </div>
+                    </div>
+                `;
+            }
+        };
+
+        const components = {
+            postCard: (id, post) => {
+                const isLiked = post.likedBy && state.user && post.likedBy[state.user.uid];
+                return `
+                <div class="glass-card p-4 mb-4">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center gap-3 cursor-pointer" onclick="router.navigate('profile', {id: '${post.uid}'})">
+                            <div class="w-10 h-10 rounded-full bg-gray-700 overflow-hidden"><img src="${post.authorPhoto}" class="w-full h-full object-cover" loading="lazy"></div>
+                            <div><h4 class="font-semibold text-white text-sm hover:underline">${utils.escapeHtml(post.authorName)}</h4><p class="text-xs text-gray-400">${utils.timeAgo(post.timestamp)}</p></div>
+                        </div>
+                        ${(state.user && post.uid === state.user.uid) || state.isAdmin ? `<button onclick="api.deletePost('${id}')" class="text-gray-400 hover:text-red-400"><i class="fa-solid fa-trash"></i></button>` : ''}
+                    </div>
+                    <p class="text-gray-200 mb-3 text-sm leading-relaxed">${utils.escapeHtml(post.content)}</p>
+                    ${post.media ? (post.mediaType === 'video' ? `<video src="${post.media}" controls class="w-full rounded-xl mb-3"></video>` : `<img src="${post.media}" class="w-full rounded-xl mb-3" loading="lazy">`) : ''}
+                    <div class="flex items-center justify-between pt-3 border-t border-white/5 text-gray-400">
+                        <button onclick="api.toggleLike('${id}')" class="flex items-center gap-2 hover:text-pink-500 ${isLiked ? 'text-pink-500' : ''} transition-colors">
+                            <i class="${isLiked ? 'fa-solid' : 'fa-regular'} fa-heart"></i> 
+                            <span class="text-xs">${post.likes || 0}</span>
+                        </button>
+                        <button onclick="router.navigate('post-detail', {id: '${id}'})" class="flex items-center gap-2 hover:text-indigo-400"><i class="fa-regular fa-comment"></i> <span class="text-xs">${Object.keys(post.comments || {}).length}</span></button>
+                        <button onclick="api.sharePost('${id}')" class="flex items-center gap-2 hover:text-green-400"><i class="fa-solid fa-share"></i> <span class="text-xs">Share</span></button>
+                    </div>
+                </div>
+            `
+            }
+        };
+
+        window.handlers = {
+            login: async (e) => { e.preventDefault(); try { await signInWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('password').value); } catch (err) { alert(err.message); } },
+            signup: async (e) => {
+                e.preventDefault();
+                try {
+                    const res = await createUserWithEmailAndPassword(auth, document.getElementById('signup-email').value, document.getElementById('signup-password').value);
+                    await updateProfile(res.user, { displayName: document.getElementById('signup-name').value });
+                    await set(ref(db, `users/${res.user.uid}`), { displayName: res.user.displayName, email: res.user.email, photoURL: res.user.photoURL, uid: res.user.uid });
+                    router.navigate('home');
+                } catch (err) { alert(err.message); }
+            },
+            googleLogin: async () => { try { await signInWithPopup(auth, new GoogleAuthProvider()); } catch (err) { console.error(err); } },
+            submitPost: async () => {
+                const content = document.getElementById('post-content').value;
+                const file = document.getElementById('post-media').files[0];
+                if (content.trim() || file) await api.createPost(content, file);
+            },
+            submitStory: async () => { 
+                const text = document.getElementById('story-text').value; 
+                const file = document.getElementById('story-media').files[0];
+                if (text.trim() || file) await api.createStory(file, text); 
+            },
+            createCommunity: () => {
+                const name = prompt("Community Name:");
+                if (name) {
+                    const desc = prompt("Description:");
+                    const newKey = push(child(ref(db), 'groups')).key;
+                    const chatId = `group_${newKey}`;
+                    set(ref(db, `groups/${newKey}`), { 
+                        name, 
+                        description: desc || '', 
+                        createdBy: state.user.uid, 
+                        members: { [state.user.uid]: true },
+                        admins: { [state.user.uid]: true },
+                        chatId: chatId
+                    });
+                    set(ref(db, `chats/${chatId}`), { 
+                        type: 'group', 
+                        name: name, 
+                        members: { [state.user.uid]: true },
+                        lastTimestamp: serverTimestamp() 
+                    });
+                    utils.showToast('Created!');
+                }
+            },
+            search: (e) => { api.searchUsers(e.target.value); },
+            sendMessage: async (e, chatId) => {
+                e.preventDefault();
+                const input = document.getElementById('msg-input');
+                const fileInput = document.getElementById('msg-file');
+                const file = fileInput?.files[0];
+                let media = null;
+                let mediaType = null;
+                if (file) {
+                    media = await utils.fileToBase64(file);
+                    mediaType = file.type.startsWith('video') ? 'video' : 'image';
+                }
+                await api.sendMessage(chatId, input.value, media, mediaType);
+                input.value = '';
+                if (fileInput) fileInput.value = '';
+                const preview = document.getElementById('msg-preview');
+                if (preview) preview.innerHTML = '';
+            },
+            submitComment: async (e, postId) => {
+                e.preventDefault();
+                const input = document.getElementById('comment-input');
+                await api.addComment(postId, input.value);
+                input.value = '';
+            },
+            submitPost: async (communityId = null) => {
+                const content = document.getElementById('post-content').value;
+                const file = document.getElementById('post-media').files[0];
+                if (content.trim() || file) await api.createPost(content, file, communityId === 'null' ? null : communityId);
+            },
+            previewMessageMedia: (input) => {
+                const file = input.files[0];
+                const preview = document.getElementById('msg-preview');
+                if (file && preview) {
+                    const url = URL.createObjectURL(file);
+                    if (file.type.startsWith('video')) {
+                        preview.innerHTML = `<div class="relative w-20 h-20 rounded-lg overflow-hidden"><video src="${url}" class="w-full h-full object-cover"></video><button type="button" onclick="document.getElementById('msg-file').value=''; this.parentElement.remove()" class="absolute top-0 right-0 bg-black/50 text-white p-1 rounded-bl"><i class="fa-solid fa-times"></i></button></div>`;
+                    } else {
+                        preview.innerHTML = `<div class="relative w-20 h-20 rounded-lg overflow-hidden"><img src="${url}" class="w-full h-full object-cover"><button type="button" onclick="document.getElementById('msg-file').value=''; this.parentElement.remove()" class="absolute top-0 right-0 bg-black/50 text-white p-1 rounded-bl"><i class="fa-solid fa-times"></i></button></div>`;
+                    }
+                }
+            },
+            saveProfile: async (e) => {
+                e.preventDefault();
+                const name = document.getElementById('edit-name').value;
+                const bio = document.getElementById('edit-bio').value;
+                const work = document.getElementById('edit-work').value;
+                const loc = document.getElementById('edit-location').value;
+                const school = document.getElementById('edit-school').value;
+                const job = document.getElementById('edit-job').value;
+                const file = document.getElementById('edit-photo').files[0];
+                const coverFile = document.getElementById('edit-cover').files[0];
+                let photoURL = state.user.photoURL;
+                let coverPhoto = state.userProfile.coverPhoto;
+                if (file) photoURL = await utils.fileToBase64(file);
+                if (coverFile) coverPhoto = await utils.fileToBase64(coverFile);
+                await api.updateProfile({ displayName: name, bio, workplace: work, location: loc, school, job, photoURL, coverPhoto });
+            },
+            toggleSetting: async (key) => {
+                const val = !state.userProfile.settings?.[key];
+                await update(ref(db, `users/${state.user.uid}/settings`), { [key]: val });
+            },
+            changePassword: async () => {
+                const p = prompt("Enter new password:");
+                if (p) {
+                    try { await updatePassword(auth.currentUser, p); utils.showToast("Password updated"); } catch(e) { alert(e.message); }
+                }
+            },
+            logout: async () => { await signOut(auth); router.navigate('login'); }
+        };
+
+        window.router = router;
+        window.api = api;
+        let messageUnsub;
+        function render() {
+            if (messageUnsub) { messageUnsub(); messageUnsub = null; }
+            const viewFn = views[state.currentView];
+            document.getElementById('app').innerHTML = viewFn ? viewFn() : '<div class="text-white p-10">404</div>';
+            if (state.user) {
+                const navImg = document.getElementById('nav-profile-img');
+                if (navImg) navImg.src = state.user.photoURL || `https://ui-avatars.com/api/?name=${state.user.displayName}`;
+            }
+            if (state.currentView === 'chat-detail') {
+                const chatId = state.viewParams.id;
+                const otherUid = chatId.replace(state.user.uid, '').replace('_', '');
+                const otherUser = (state.users && state.users[otherUid]) || { displayName: 'User', photoURL: 'https://ui-avatars.com/api/?name=User' };
+                messageUnsub = onValue(ref(db, `messages/${chatId}`), snap => {
+                    const msgs = snap.val();
+                    const container = document.getElementById('chat-messages');
+                    if (container && msgs) {
+                        container.innerHTML = Object.values(msgs).map(m => {
+                            const isMe = m.senderId === state.user.uid;
+                            return `
+                            <div class="flex ${isMe ? 'justify-end' : 'justify-start'} mb-4">
+                                ${!isMe ? `<div class="w-8 h-8 rounded-full bg-gray-700 overflow-hidden mr-2 self-end"><img src="${otherUser.photoURL}" class="w-full h-full object-cover"></div>` : ''}
+                                <div class="${isMe ? 'bg-indigo-600 text-white rounded-tr-none' : 'glass-panel text-gray-200 rounded-tl-none'} px-5 py-3 rounded-2xl max-w-[75%] shadow-lg relative group">
+                                    ${m.media ? (m.mediaType === 'video' ? `<video src="${m.media}" controls class="w-full rounded-lg mb-2 max-h-60"></video>` : `<img src="${m.media}" class="w-full rounded-lg mb-2 max-h-60 object-cover cursor-pointer" onclick="window.open(this.src)">`) : ''}
+                                    ${m.text ? `<p class="text-sm leading-relaxed">${utils.escapeHtml(m.text)}</p>` : ''}
+                                    <span class="text-[10px] opacity-50 mt-1 block text-right">${new Date(m.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+                                </div>
+                                ${isMe ? `<div class="w-8 h-8 rounded-full bg-gray-700 overflow-hidden ml-2 self-end"><img src="${state.user.photoURL || 'https://ui-avatars.com/api/?name=' + state.user.displayName}" class="w-full h-full object-cover"></div>` : ''}
+                            </div>
+                        `}).join('');
+                        container.scrollTop = container.scrollHeight;
+                    }
+                });
+            }
+        }
+
+        if (auth) {
+            onAuthStateChanged(auth, (user) => {
+                state.user = user;
+                if (user) {
+                    update(ref(db, `users/${user.uid}`), { displayName: user.displayName, email: user.email, photoURL: user.photoURL, uid: user.uid });
+                    get(ref(db, `admins/${user.uid}`)).then(snap => { state.isAdmin = snap.exists(); render(); });
+                    if (['login', 'signup'].includes(state.currentView)) router.navigate('home');
+                    onValue(ref(db, 'posts'), snap => { state.posts = snap.val() || {}; if (state.currentView === 'home') render(); });
+                    onValue(ref(db, 'groups'), snap => { state.communities = snap.val() || {}; if (state.currentView === 'communities') render(); });
+                    onValue(ref(db, 'stories'), snap => { state.stories = snap.val() || {}; if (state.currentView === 'home') render(); });
+                    onValue(ref(db, `following/${user.uid}`), snap => { state.following = snap.val() || {}; if (state.currentView === 'profile' || state.currentView === 'search') render(); });
+                    onValue(ref(db, `users/${user.uid}`), snap => { state.userProfile = snap.val() || {}; if (state.currentView === 'profile' || state.currentView === 'settings') render(); });
+                    onValue(ref(db, 'users'), snap => { state.users = snap.val() || {}; if (state.currentView === 'messages' || state.currentView === 'search') render(); });
+                    onValue(ref(db, 'chats'), snap => { state.chats = snap.val() || {}; if (state.currentView === 'messages') render(); });
+                } else {
+                    router.navigate('login');
+                }
+            });
+        } else {
+            state.currentView = 'login';
+            render();
+        }
+    </script>
+</body>
+</html>
